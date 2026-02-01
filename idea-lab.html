@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Idea Lab Sandbox (v1)</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111826;
+      --panel2:#0f1622;
+      --ink:#e8eef8;
+      --muted:#a9b6c7;
+      --line:#233246;
+      --accent:#7dd3fc;
+      --good:#86efac;
+      --warn:#fde68a;
+      --bad:#fca5a5;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 30% -10%, rgba(125,211,252,.15), transparent 60%),
+                  radial-gradient(1000px 700px at 90% 10%, rgba(134,239,172,.10), transparent 55%),
+                  var(--bg);
+      color:var(--ink);
+    }
+    header{
+      padding:18px 18px 10px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .title{
+      display:flex;
+      gap:10px;
+      align-items:baseline;
+      flex-wrap:wrap;
+    }
+    h1{
+      font-size:18px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .sub{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 10px 18px 24px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(17,24,38,.9), rgba(15,22,34,.9));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card header{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .card header .label{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .card note{
+      display:block;
+      padding:10px 14px 0;
+      color:var(--muted);
+      font-size:12px;
+    }
+    textarea{
+      width:100%;
+      min-height: 220px;
+      resize: vertical;
+      border:1px solid var(--line);
+      background: rgba(5,10,16,.55);
+      color:var(--ink);
+      border-radius: 12px;
+      padding:12px;
+      outline:none;
+      line-height:1.45;
+      font-size:14px;
+    }
+    textarea:focus{ border-color: rgba(125,211,252,.55); box-shadow: 0 0 0 3px rgba(125,211,252,.12); }
+    .body{
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .group{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    button{
+      border:1px solid var(--line);
+      background: rgba(10,16,26,.65);
+      color:var(--ink);
+      padding:9px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-size:13px;
+      transition: transform .06s ease, border-color .2s ease, background .2s ease;
+      user-select:none;
+    }
+    button:hover{ border-color: rgba(125,211,252,.55); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      border-color: rgba(125,211,252,.6);
+      background: rgba(125,211,252,.12);
+    }
+    button.ghost{
+      background: transparent;
+    }
+    button.danger{
+      border-color: rgba(252,165,165,.55);
+      background: rgba(252,165,165,.10);
+    }
+    button.good{
+      border-color: rgba(134,239,172,.55);
+      background: rgba(134,239,172,.10);
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--muted);
+      background: rgba(5,10,16,.35);
+    }
+    select, input[type="range"]{
+      accent-color: var(--accent);
+    }
+    select{
+      border:1px solid var(--line);
+      background: rgba(5,10,16,.35);
+      color:var(--ink);
+      padding:7px 8px;
+      border-radius: 12px;
+      font-size:13px;
+      outline:none;
+    }
+    .constraints{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border:1px dashed rgba(35,50,70,.9);
+      border-radius: 14px;
+      background: rgba(5,10,16,.25);
+    }
+    .constraints .c-row{
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap:10px;
+      align-items:center;
+    }
+    .constraints label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .preview{
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(5,10,16,.35);
+      min-height: 220px;
+      white-space: pre-wrap;
+      line-height:1.45;
+      font-size:14px;
+    }
+    .meta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .muted{ color:var(--muted); font-size:12px; }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 980px){
+      .split{ grid-template-columns: 1fr; }
+    }
+    .list{
+      display:grid;
+      gap:10px;
+    }
+    .item{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:10px;
+      background: rgba(5,10,16,.35);
+      display:grid;
+      gap:8px;
+    }
+    .item .top{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .tag{
+      font-size:11px;
+      color:var(--muted);
+      border:1px solid var(--line);
+      padding:4px 8px;
+      border-radius:999px;
+      background: rgba(10,16,26,.35);
+    }
+    .item .snippet{
+      color: var(--ink);
+      font-size:13px;
+      line-height:1.35;
+      opacity:.95;
+      max-height: 3.9em;
+      overflow:hidden;
+    }
+    .item .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(5,10,16,.35);
+      color: var(--muted);
+    }
+    .toast{
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(15,22,34,.92);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events:none;
+      max-width: 360px;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <h1>Idea Lab Sandbox (v1)</h1>
+      <div class="sub">A tiny studio for transforming messy thoughts into selectable drafts. Local-only autosave. ⛺️</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- LEFT: Input + Controls -->
+    <section class="card" aria-label="Idea Input">
+      <header>
+        <div class="label">1) Seed idea</div>
+        <div class="group">
+          <span class="pill">Undo <span class="kbd">Ctrl</span>+<span class="kbd">Z</span></span>
+          <span class="pill">Redo <span class="kbd">Ctrl</span>+<span class="kbd">Y</span></span>
+        </div>
+      </header>
+
+      <div class="body">
+        <note>
+          Tip: Write like you’re talking to a smart friend. The sandbox will help you shape, not replace, your thinking.
+        </note>
+
+        <textarea id="seed" placeholder="Drop your messy idea here..."></textarea>
+
+        <div class="constraints" aria-label="Constraints">
+          <div class="row">
+            <div class="label" style="color:var(--muted);font-size:13px;">2) Constraints</div>
+            <div class="muted">These shape transforms. They don’t auto-write your worldview.</div>
+          </div>
+
+          <div class="c-row">
+            <label for="tone">Tone</label>
+            <select id="tone">
+              <option value="plain">Plainspoken</option>
+              <option value="warm">Warm</option>
+              <option value="bold">Bold</option>
+              <option value="playful">Playful</option>
+              <option value="formal">Formal</option>
+            </select>
+          </div>
+
+          <div class="c-row">
+            <label for="audience">Audience</label>
+            <select id="audience">
+              <option value="general">General</option>
+              <option value="teammate">Teammate</option>
+              <option value="client">Client</option>
+              <option value="funder">Funder</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+
+          <div class="c-row">
+            <label for="length">Length</label>
+            <div class="group" style="width:100%;">
+              <input id="length" type="range" min="0" max="100" value="40" style="width:100%;" />
+              <span id="lengthLabel" class="tag" aria-live="polite">~ medium</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="group">
+            <button class="primary" id="btnClarify">Clarify</button>
+            <button id="btnCompress">Compress</button>
+            <button id="btnExpand">Expand with detail</button>
+            <button id="btnQuestions" class="ghost">Ask clarifying Qs</button>
+          </div>
+          <div class="group">
+            <button id="btnCommit" class="good">Commit as version</button>
+            <button id="btnReset" class="danger">Reset</button>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div class="muted" id="status">Autosave: on</div>
+          <div class="muted">Local: <span class="kbd">localStorage</span> only</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Preview + Versions -->
+    <section class="card" aria-label="Output & Versions">
+      <header>
+        <div class="label">3) Draft surface</div>
+        <div class="group">
+          <button id="btnPin" class="ghost">Pin current</button>
+          <button id="btnCopy" class="ghost">Copy</button>
+          <button id="btnExport" class="primary">Export bundle</button>
+        </div>
+      </header>
+
+      <div class="body">
+        <div class="row">
+          <div class="pill">Current draft</div>
+          <div class="muted" id="draftMeta">No transform yet.</div>
+        </div>
+
+        <div id="preview" class="preview" role="region" aria-label="Draft preview"></div>
+
+        <div class="split">
+          <div>
+            <div class="row">
+              <div class="pill">History</div>
+              <div class="muted">Click to load.</div>
+            </div>
+            <div id="historyList" class="list" aria-label="History versions"></div>
+          </div>
+          <div>
+            <div class="row">
+              <div class="pill">Pins</div>
+              <div class="muted">Your “keepers.”</div>
+            </div>
+            <div id="pinList" class="list" aria-label="Pinned versions"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script>
+    // ===========
+    // Idea Lab v1
+    // ===========
+    // Features:
+    // - Constraints: tone, audience, length
+    // - Transform buttons (rule-based placeholders, easy to swap for AI later)
+    // - Commit versions with undo/redo
+    // - Pins
+    // - Autosave to localStorage
+    // - Export bundle (seed + versions + pins)
+    //
+    // Design principle: help humans steer, not outsource.
+
+    const LS_KEY = "idea_lab_v1_state";
+
+    const el = {
+      seed: document.getElementById("seed"),
+      tone: document.getElementById("tone"),
+      audience: document.getElementById("audience"),
+      length: document.getElementById("length"),
+      lengthLabel: document.getElementById("lengthLabel"),
+      status: document.getElementById("status"),
+      preview: document.getElementById("preview"),
+      draftMeta: document.getElementById("draftMeta"),
+      historyList: document.getElementById("historyList"),
+      pinList: document.getElementById("pinList"),
+      toast: document.getElementById("toast"),
+
+      btnClarify: document.getElementById("btnClarify"),
+      btnCompress: document.getElementById("btnCompress"),
+      btnExpand: document.getElementById("btnExpand"),
+      btnQuestions: document.getElementById("btnQuestions"),
+      btnCommit: document.getElementById("btnCommit"),
+      btnReset: document.getElementById("btnReset"),
+
+      btnPin: document.getElementById("btnPin"),
+      btnCopy: document.getElementById("btnCopy"),
+      btnExport: document.getElementById("btnExport"),
+    };
+
+    const nowISO = () => new Date().toISOString();
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+    function toast(msg){
+      el.toast.textContent = msg;
+      el.toast.classList.add("show");
+      window.clearTimeout(toast._t);
+      toast._t = window.setTimeout(()=> el.toast.classList.remove("show"), 1800);
+    }
+
+    function lengthBucket(v){
+      if (v < 25) return { label: "~ short", words: 35 };
+      if (v < 55) return { label: "~ medium", words: 70 };
+      return { label: "~ long", words: 120 };
+    }
+
+    // ----- State -----
+    const state = {
+      seed: "",
+      constraints: { tone:"plain", audience:"general", length:40 },
+      currentDraft: { text:"", kind:"", createdAt:null },
+      history: [],   // committed versions
+      pins: [],      // pinned versions
+      undo: [],      // stack of snapshots
+      redo: [],      // stack of snapshots
+    };
+
+    function snapshot(){
+      // Minimal snapshot for undo/redo
+      return JSON.parse(JSON.stringify({
+        seed: state.seed,
+        constraints: state.constraints,
+        currentDraft: state.currentDraft,
+        history: state.history,
+        pins: state.pins
+      }));
+    }
+
+    function pushUndo(){
+      state.undo.push(snapshot());
+      state.redo = [];
+      if (state.undo.length > 60) state.undo.shift();
+    }
+
+    function restore(snap){
+      state.seed = snap.seed;
+      state.constraints = snap.constraints;
+      state.currentDraft = snap.currentDraft;
+      state.history = snap.history;
+      state.pins = snap.pins;
+      syncUI();
+    }
+
+    function save(){
+      try{
+        localStorage.setItem(LS_KEY, JSON.stringify(snapshot()));
+        el.status.textContent = "Autosave: saved";
+        window.clearTimeout(save._t);
+        save._t = window.setTimeout(()=> el.status.textContent = "Autosave: on", 900);
+      }catch(e){
+        el.status.textContent = "Autosave: unavailable";
+      }
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        const snap = JSON.parse(raw);
+        restore(snap);
+        toast("Loaded previous session");
+      }catch(e){
+        // ignore
+      }
+    }
+
+    // ----- Transform helpers (rule-based, replaceable with real AI later) -----
+    function sanitizeSeed(txt){
+      return (txt || "").trim().replace(/\s+\n/g, "\n").replace(/[ \t]+/g, " ");
+    }
+
+    function applyTonePrefix(tone){
+      switch(tone){
+        case "warm": return "Warm lens: ";
+        case "bold": return "Bold claim: ";
+        case "playful": return "Playful angle: ";
+        case "formal": return "Formal framing: ";
+        default: return "";
+      }
+    }
+
+    function applyAudienceHint(aud){
+      switch(aud){
+        case "teammate": return "For a teammate: ";
+        case "client": return "For a client: ";
+        case "funder": return "For a funder: ";
+        case "expert": return "For an expert: ";
+        default: return "";
+      }
+    }
+
+    function compressToWords(text, maxWords){
+      const words = text.split(/\s+/).filter(Boolean);
+      if (words.length <= maxWords) return text;
+      return words.slice(0, maxWords).join(" ") + "…";
+    }
+
+    function clarify(text, c){
+      const seed = sanitizeSeed(text);
+      if (!seed) return "";
+
+      const prefix = applyAudienceHint(c.audience) + applyTonePrefix(c.tone);
+
+      // Simple “clarify” structure: claim + why + next step
+      const core = seed.replace(/\.$/, "");
+      const why = c.audience === "funder"
+        ? "This matters because it strengthens outcomes and reduces waste."
+        : "This matters because it helps people decide and act with more confidence.";
+      const next = "Next step: pick one concrete test you can run this week.";
+
+      const draft = `${prefix}${core}.\n\nWhy it matters: ${why}\n${next}`;
+      const { words } = lengthBucket(c.length);
+      return compressToWords(draft, words);
+    }
+
+    function compress(text, c){
+      const seed = sanitizeSeed(text);
+      if (!seed) return "";
+      const prefix = applyAudienceHint(c.audience);
+
+      // Compression heuristics: keep first 1–2 sentences, then add “so what”
+      const parts = seed.split(/(?<=[.!?])\s+/).filter(Boolean);
+      const base = parts.slice(0, Math.min(2, parts.length)).join(" ");
+      const soWhat = c.audience === "expert"
+        ? "Key point: define the mechanism and test the boundary conditions."
+        : "Key point: name the outcome and the smallest experiment.";
+      const draft = `${prefix}${base}\n\n${soWhat}`;
+      const { words } = lengthBucket(c.length);
+      return compressToWords(draft, clamp(words - 15, 20, 90));
+    }
+
+    function expand(text, c){
+      const seed = sanitizeSeed(text);
+      if (!seed) return "";
+      const prefix = applyTonePrefix(c.tone);
+
+      // Expansion heuristic: add concrete details scaffolding
+      const prompts = [
+        "What’s the specific context or setting?",
+        "What’s the constraint (time, budget, attention, risk)?",
+        "What’s one example that makes this real?",
+        "What would success look like in one sentence?"
+      ];
+      const audienceAdd = c.audience === "funder"
+        ? "Add: Who benefits, and what changes will be measurable?"
+        : c.audience === "client"
+          ? "Add: What decision will this help you make?"
+          : "Add: What’s the smallest prototype you can build?";
+
+      const draft =
+`${prefix}${seed}
+
+Details to add (fill these in):
+- Context: …
+- Constraint: …
+- Example: …
+- Success statement: …
+
+Guiding questions:
+- ${prompts.join("\n- ")}
+
+${audienceAdd}`;
+
+      const { words } = lengthBucket(c.length);
+      return compressToWords(draft, clamp(words + 30, 60, 180));
+    }
+
+    function questions(text, c){
+      const seed = sanitizeSeed(text);
+      if (!seed) return "";
+      const qs = [
+        "What are you trying to change, for whom, and by when?",
+        "What’s the smallest version of this that still teaches you something?",
+        "What assumption would embarrass you if it turned out false?",
+        "What would you remove to make this clearer in 10 seconds?"
+      ];
+      if (c.audience === "funder"){
+        qs.unshift("What outcome are you accountable for, and how will you know it moved?");
+      }
+      return "Clarifying questions (answer any 2):\n- " + qs.join("\n- ");
+    }
+
+    // ----- UI sync -----
+    function renderList(listEl, items, kind){
+      listEl.innerHTML = "";
+      if (items.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "muted";
+        empty.textContent = kind === "pins" ? "No pins yet. Pin a keeper draft." : "No committed versions yet.";
+        listEl.appendChild(empty);
+        return;
+      }
+
+      items.slice().reverse().forEach((v) => {
+        const card = document.createElement("div");
+        card.className = "item";
+
+        const top = document.createElement("div");
+        top.className = "top";
+
+        const left = document.createElement("div");
+        left.className = "group";
+
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = `${v.kind || "version"} • ${new Date(v.createdAt).toLocaleString()}`;
+
+        const meta = document.createElement("span");
+        meta.className = "tag";
+        meta.textContent = `${v.constraints.tone}/${v.constraints.audience}/${lengthBucket(v.constraints.length).label.replace("~ ","")}`;
+
+        left.appendChild(tag);
+        left.appendChild(meta);
+
+        const snippet = document.createElement("div");
+        snippet.className = "snippet";
+        snippet.textContent = v.text;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const btnLoad = document.createElement("button");
+        btnLoad.textContent = "Load";
+        btnLoad.className = "ghost";
+        btnLoad.addEventListener("click", () => {
+          pushUndo();
+          state.currentDraft = { text: v.text, kind: v.kind, createdAt: nowISO(), constraints: v.constraints };
+          syncUI();
+          save();
+          toast("Loaded into current draft");
+        });
+
+        const btnCopy = document.createElement("button");
+        btnCopy.textContent = "Copy";
+        btnCopy.className = "ghost";
+        btnCopy.addEventListener("click", async () => {
+          await navigator.clipboard.writeText(v.text);
+          toast("Copied");
+        });
+
+        const btnDelete = document.createElement("button");
+        btnDelete.textContent = "Delete";
+        btnDelete.className = "danger";
+        btnDelete.addEventListener("click", () => {
+          pushUndo();
+          const arr = kind === "pins" ? state.pins : state.history;
+          const idx = arr.findIndex(x => x.id === v.id);
+          if (idx >= 0) arr.splice(idx, 1);
+          syncUI();
+          save();
+          toast("Deleted");
+        });
+
+        actions.appendChild(btnLoad);
+        actions.appendChild(btnCopy);
+        actions.appendChild(btnDelete);
+
+        top.appendChild(left);
+        top.appendChild(actions);
+
+        card.appendChild(top);
+        card.appendChild(snippet);
+        listEl.appendChild(card);
+      });
+    }
+
+    function syncUI(){
+      el.seed.value = state.seed;
+      el.tone.value = state.constraints.tone;
+      el.audience.value = state.constraints.audience;
+      el.length.value = state.constraints.length;
+
+      const b = lengthBucket(state.constraints.length);
+      el.lengthLabel.textContent = b.label;
+
+      el.preview.textContent = state.currentDraft.text || "Run a transform to see a draft here.";
+      el.draftMeta.textContent = state.currentDraft.text
+        ? `${state.currentDraft.kind || "draft"} • ${new Date(state.currentDraft.createdAt || Date.now()).toLocaleString()}`
+        : "No transform yet.";
+
+      renderList(el.historyList, state.history, "history");
+      renderList(el.pinList, state.pins, "pins");
+    }
+
+    // ----- Actions -----
+    function getConstraints(){
+      return {
+        tone: el.tone.value,
+        audience: el.audience.value,
+        length: Number(el.length.value)
+      };
+    }
+
+    function setConstraints(c){
+      state.constraints = c;
+      syncUI();
+      save();
+    }
+
+    function setSeed(txt){
+      state.seed = txt;
+      save();
+    }
+
+    function setDraft(kind, text){
+      state.currentDraft = {
+        id: crypto.randomUUID?.() || String(Math.random()).slice(2),
+        kind,
+        text,
+        createdAt: nowISO(),
+        constraints: JSON.parse(JSON.stringify(state.constraints))
+      };
+      syncUI();
+      save();
+    }
+
+    function commitVersion(){
+      if (!state.currentDraft.text){
+        toast("Nothing to commit yet");
+        return;
+      }
+      pushUndo();
+      state.history.push({
+        id: crypto.randomUUID?.() || String(Math.random()).slice(2),
+        kind: state.currentDraft.kind || "draft",
+        text: state.currentDraft.text,
+        createdAt: nowISO(),
+        constraints: JSON.parse(JSON.stringify(state.constraints))
+      });
+      syncUI();
+      save();
+      toast("Committed to history");
+    }
+
+    function pinCurrent(){
+      if (!state.currentDraft.text){
+        toast("Nothing to pin yet");
+        return;
+      }
+      pushUndo();
+      // prevent duplicates by text match
+      const exists = state.pins.some(p => p.text === state.currentDraft.text);
+      if (!exists){
+        state.pins.push({
+          id: crypto.randomUUID?.() || String(Math.random()).slice(2),
+          kind: "pin",
+          text: state.currentDraft.text,
+          createdAt: nowISO(),
+          constraints: JSON.parse(JSON.stringify(state.constraints))
+        });
+        toast("Pinned");
+      } else {
+        toast("Already pinned");
+      }
+      syncUI();
+      save();
+    }
+
+    async function exportBundle(){
+      const bundle = {
+        exportedAt: nowISO(),
+        seed: state.seed,
+        constraints: state.constraints,
+        currentDraft: state.currentDraft,
+        history: state.history,
+        pins: state.pins
+      };
+      const text =
+`IDEA LAB EXPORT
+Exported: ${bundle.exportedAt}
+
+SEED
+${bundle.seed}
+
+CONSTRAINTS
+- Tone: ${bundle.constraints.tone}
+- Audience: ${bundle.constraints.audience}
+- Length: ${lengthBucket(bundle.constraints.length).label}
+
+CURRENT DRAFT (${bundle.currentDraft.kind || "none"})
+${bundle.currentDraft.text || "(none)"}
+
+HISTORY (${bundle.history.length})
+${bundle.history.map((v,i)=>`[${i+1}] ${v.kind} • ${new Date(v.createdAt).toLocaleString()}\n${v.text}\n`).join("\n")}
+
+PINS (${bundle.pins.length})
+${bundle.pins.map((v,i)=>`[${i+1}] • ${new Date(v.createdAt).toLocaleString()}\n${v.text}\n`).join("\n")}
+`;
+      await navigator.clipboard.writeText(text);
+      toast("Export copied to clipboard");
+    }
+
+    function resetAll(){
+      pushUndo();
+      state.seed = "";
+      state.currentDraft = { text:"", kind:"", createdAt:null };
+      state.history = [];
+      state.pins = [];
+      syncUI();
+      save();
+      toast("Reset complete");
+    }
+
+    function doTransform(kind){
+      const seed = sanitizeSeed(el.seed.value);
+      state.seed = seed;
+      state.constraints = getConstraints();
+
+      if (!seed){
+        toast("Add a seed idea first");
+        syncUI();
+        save();
+        return;
+      }
+
+      const c = state.constraints;
+      let out = "";
+      if (kind === "clarify") out = clarify(seed, c);
+      if (kind === "compress") out = compress(seed, c);
+      if (kind === "expand") out = expand(seed, c);
+      if (kind === "questions") out = questions(seed, c);
+
+      pushUndo();
+      setDraft(kind, out);
+      toast("Draft updated");
+    }
+
+    // ----- Event wiring -----
+    el.seed.addEventListener("input", () => setSeed(el.seed.value));
+    el.tone.addEventListener("change", () => setConstraints(getConstraints()));
+    el.audience.addEventListener("change", () => setConstraints(getConstraints()));
+    el.length.addEventListener("input", () => setConstraints(getConstraints()));
+
+    el.btnClarify.addEventListener("click", () => doTransform("clarify"));
+    el.btnCompress.addEventListener("click", () => doTransform("compress"));
+    el.btnExpand.addEventListener("click", () => doTransform("expand"));
+    el.btnQuestions.addEventListener("click", () => doTransform("questions"));
+    el.btnCommit.addEventListener("click", commitVersion);
+    el.btnReset.addEventListener("click", resetAll);
+
+    el.btnPin.addEventListener("click", pinCurrent);
+    el.btnCopy.addEventListener("click", async () => {
+      if (!state.currentDraft.text){ toast("Nothing to copy"); return; }
+      await navigator.clipboard.writeText(state.currentDraft.text);
+      toast("Copied");
+    });
+    el.btnExport.addEventListener("click", exportBundle);
+
+    // Undo/redo shortcuts
+    document.addEventListener("keydown", (e) => {
+      const isMac = navigator.platform.toUpperCase().includes("MAC");
+      const mod = isMac ? e.metaKey : e.ctrlKey;
+
+      if (!mod) return;
+
+      if (e.key.toLowerCase() === "z" && !e.shiftKey){
+        e.preventDefault();
+        const snap = state.undo.pop();
+        if (snap){
+          state.redo.push(snapshot());
+          restore(snap);
+          save();
+          toast("Undo");
+        }
+      } else if (e.key.toLowerCase() === "y" || (e.key.toLowerCase() === "z" && e.shiftKey)){
+        e.preventDefault();
+        const snap = state.redo.pop();
+        if (snap){
+          state.undo.push(snapshot());
+          restore(snap);
+          save();
+          toast("Redo");
+        }
+      }
+    });
+
+    // Boot
+    load();
+    syncUI();
+  </script>
+</body>
+</html>
