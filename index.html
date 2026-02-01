@@ -627,19 +627,11 @@ ${audienceAdd}`;
     }
 
     function questions(text, c){
-      const seed = sanitizeSeed(text);
-      if (!seed) return "";
-      const qs = [
-        "What are you trying to change, for whom, and by when?",
-        "What’s the smallest version of this that still teaches you something?",
-        "What assumption would embarrass you if it turned out false?",
-        "What would you remove to make this clearer in 10 seconds?"
-      ];
-      if (c.audience === "funder"){
-        qs.unshift("What outcome are you accountable for, and how will you know it moved?");
-      }
-      return "Clarifying questions (answer any 2):\n- " + qs.join("\n- ");
-    }
+  const seed = sanitizeSeed(text);
+  ...
+  return "Clarifying questions (answer any 2):\n- " + qs.join("\n- ");
+}
+
 
     // ----- UI sync -----
     function renderList(listEl, items, kind){
